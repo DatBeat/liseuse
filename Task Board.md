@@ -8,7 +8,8 @@
 
 ## This Week
 - [x] v2 Wave 1: modules + PWA + IndexedDB library
-- [ ] **Tester Wave 1 sur Vercel prod** (bibliothèque, search, PWA install, offline)
+- [x] **Tester Wave 1 sur Vercel prod** — passed (sample render, IDB persist, drawer, SW, auto-restore)
+- [ ] Setup alias Vercel stable (`vercel alias` ou domaine custom) — URL change à chaque deploy
 - [ ] v2 Wave 2: Stats + reading streak
 - [ ] v2 Wave 3: Annotations + Focus mode
 - [ ] Configurer domaine custom Vercel (optionnel)

@@ -1,6 +1,6 @@
 /* Liseuse — service worker (cache-first for app shell, network-first for fonts) */
 
-const VERSION = 'v2-1';
+const VERSION = 'v2-2';
 const SHELL_CACHE = `liseuse-shell-${VERSION}`;
 const FONT_CACHE = `liseuse-fonts-${VERSION}`;
 

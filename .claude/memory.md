@@ -13,7 +13,8 @@
 - v2 Wave 1 livrée: ES modules, PWA, IndexedDB library
 - À tester sur prod: install PWA, library drawer, search, persistence après reload
 - Prochain: Wave 2 (stats + streak) puis Wave 3 (annotations + focus)
-- App live: https://liseuse-qsookxbaz-datbeatbusiness.vercel.app
+- App live (latest): https://liseuse-3gvj3fh2u-datbeatbusiness.vercel.app
+- ⚠ URL change à chaque deploy — `vercel ls liseuse` pour la dernière. Setup alias stable avant launch.
 - Repo: https://github.com/DatBeat/liseuse
 
 ## Goals
