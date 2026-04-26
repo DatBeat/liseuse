@@ -10,13 +10,13 @@
 - **Déploiement:** Vercel, repo GitHub
 
 ## Now
-- v2 Tier 1 complet — Waves 1, 2, 3 livrées et testées en prod (Claude in Chrome)
-- Wave 1: ES modules, PWA, IndexedDB library, drawer, auto-restore
-- Wave 2: stats tracking (5s tick + idle 60s), badge, modal, streak
-- Wave 3: annotations (3 colors + notes, prefix/suffix W3C anchoring), focus mode (paragraphe central + Cmd+Shift+F)
-- Latest prod: https://liseuse-2glz2dqt5-datbeatbusiness.vercel.app
-- ⚠ URL change à chaque deploy — setup alias Vercel stable avant launch
-- Prochain: alias stable, ou Tier 2 (édition inline + export PDF), ou Supabase sync
+- v2 Tier 1 + Tier 2 complets (testés en prod via Claude in Chrome)
+- Tier 1: ES modules, PWA, IndexedDB library, stats+streak, annotations W3C-anchored, focus mode
+- Tier 2: front matter YAML cover (eyebrow/title/subtitle/author/date/tags), inline editor drawer (Cmd+S), print/PDF (@media print)
+- Stable alias créé: https://liseuse-datbeat.vercel.app (mais 401 — SSO Auth à désactiver dans dashboard)
+- Latest deploy: https://liseuse-36r20rrij-datbeatbusiness.vercel.app
+- ⚠⚠ Chaque URL deploy = origin différent → IDB séparé. SEUL l'alias stable préserve les données utilisateur. CRITIQUE: désactiver Vercel Auth dashboard avant launch.
+- Prochain: Tier 2.2 (Supabase sync — agent du 03/05 prépare schéma), ou TTS, ou stop
 - Repo: https://github.com/DatBeat/liseuse
 
 ## Goals
