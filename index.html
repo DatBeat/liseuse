@@ -4,12 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Liseuse — Un lecteur Markdown raffiné</title>
+<meta name="description" content="Un lecteur Markdown raffiné — lire, en paix.">
+<meta name="theme-color" content="#8B3A1F">
+
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="apple-touch-icon" href="/icons/icon.svg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="/styles.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -21,13 +27,18 @@
 <header id="topbar">
   <div class="brand">
     Liseuse<span class="dot"></span>
-    <small>v.1</small>
+    <small>v.2</small>
   </div>
 
   <div class="filename" id="filename-display"></div>
 
   <div class="controls">
-    <button class="btn btn-icon" id="toggle-theme" title="Changer de thème">
+    <button class="btn btn-icon" id="library-btn" title="Bibliothèque (⌘K)" aria-label="Ouvrir la bibliothèque">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+      </svg>
+    </button>
+    <button class="btn btn-icon" id="toggle-theme" title="Changer de thème" aria-label="Changer de thème">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" id="icon-theme">
         <circle cx="12" cy="12" r="4"/>
         <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
@@ -94,6 +105,26 @@
   </div>
 </section>
 
-<script src="app.js" defer></script>
+<!-- Library drawer -->
+<div id="library-backdrop"></div>
+<aside id="library-drawer" aria-label="Bibliothèque">
+  <header class="lib-header">
+    <h2 class="lib-heading">Bibliothèque</h2>
+    <button class="btn btn-icon" id="library-close" title="Fermer" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </header>
+  <div class="lib-search-wrap">
+    <svg class="lib-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="search" id="library-search" placeholder="Rechercher un document…" autocomplete="off">
+  </div>
+  <ul id="library-list" class="lib-list"></ul>
+  <div id="library-empty" class="lib-empty">
+    <p>Aucun document.</p>
+    <p class="lib-empty-hint">Déposez un fichier <code>.md</code> pour commencer.</p>
+  </div>
+</aside>
+
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

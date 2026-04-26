@@ -1,0 +1,43 @@
+{
+  "name": "Liseuse",
+  "short_name": "Liseuse",
+  "description": "Un lecteur Markdown raffiné — lire, en paix.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F5F1E8",
+  "theme_color": "#8B3A1F",
+  "orientation": "any",
+  "categories": ["productivity", "utilities", "books"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/markdown": [".md", ".markdown", ".mdx"],
+        "text/plain": [".txt"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "file",
+          "accept": ["text/markdown", "text/plain", ".md", ".markdown", ".txt"]
+        }
+      ]
+    }
+  }
+}
