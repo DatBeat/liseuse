@@ -1,6 +1,6 @@
 /* Liseuse — service worker (cache-first for app shell, network-first for fonts) */
 
-const VERSION = 'v2-3';
+const VERSION = 'v2-4';
 const SHELL_CACHE = `liseuse-shell-${VERSION}`;
 const FONT_CACHE = `liseuse-fonts-${VERSION}`;
 
@@ -16,6 +16,9 @@ const SHELL_ASSETS = [
   '/src/stats.js',
   '/src/annotations.js',
   '/src/focus.js',
+  '/src/editor.js',
+  '/src/print.js',
+  '/src/frontmatter.js',
   '/icons/icon.svg',
 ];
 

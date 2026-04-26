@@ -1,5 +1,7 @@
 /* Markdown rendering, TOC, theme */
 
+import { parseFrontMatter, renderFrontMatterCover } from './frontmatter.js';
+
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => root.querySelectorAll(s);
 
@@ -89,7 +91,9 @@ export function renderMarkdown(text, filename) {
   const filenameDisplay = $('#filename-display');
   const newFileBtn = $('#new-file-btn');
 
-  const html = window.marked.parse(text);
+  const { data: frontMatter, body } = parseFrontMatter(text);
+  const cover = renderFrontMatterCover(frontMatter);
+  const html = cover + window.marked.parse(body);
   content.innerHTML = html;
 
   const endMark = document.createElement('div');

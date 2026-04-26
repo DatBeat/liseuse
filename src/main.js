@@ -11,6 +11,8 @@ import {
 import { initStats } from './stats.js';
 import { initAnnotations } from './annotations.js';
 import { initFocusMode } from './focus.js';
+import { initEditor } from './editor.js';
+import { initPrint } from './print.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -132,6 +134,8 @@ async function boot() {
   initStats();
   initAnnotations();
   initFocusMode();
+  initEditor();
+  initPrint();
   initServiceWorker();
 
   // Try to restore last opened document
