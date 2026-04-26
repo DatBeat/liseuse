@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liseuse — Un lecteur Markdown raffiné</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════════════
+   LISEUSE — A refined markdown reader
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* Light theme — warm paper */
+  --bg:         #F5F1E8;
+  --bg-paper:   #FBF8F1;
+  --bg-raised:  #EEE8D9;
+  --ink:        #1A1714;
+  --ink-2:      #453F37;
+  --ink-3:      #8A8278;
+  --accent:     #8B3A1F;   /* terracotta */
+  --accent-2:   rgba(139, 58, 31, 0.08);
+  --accent-3:   rgba(139, 58, 31, 0.25);
+  --line:       rgba(26, 23, 20, 0.12);
+  --line-soft:  rgba(26, 23, 20, 0.06);
+  --code-bg:    #F0EAD9;
+  --code-ink:   #3A332B;
+  --quote-bg:   rgba(139, 58, 31, 0.04);
+  --shadow:     0 1px 2px rgba(26, 23, 20, 0.04), 0 8px 32px rgba(26, 23, 20, 0.06);
+  --shadow-lg:  0 2px 4px rgba(26, 23, 20, 0.06), 0 24px 64px rgba(26, 23, 20, 0.12);
+  --grain-opacity: 0.035;
+
+  --font-display: 'Fraunces', 'Times New Roman', serif;
+  --font-serif:   'Source Serif 4', Georgia, serif;
+  --font-ui:      'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --reading-width: 38rem;
+}
+
+[data-theme="dark"] {
+  --bg:         #15130F;
+  --bg-paper:   #1C1915;
+  --bg-raised:  #24201B;
+  --ink:        #F3EEE2;
+  --ink-2:      #BCB4A4;
+  --ink-3:      #7A7267;
+  --accent:     #E8A87C;   /* warm amber */
+  --accent-2:   rgba(232, 168, 124, 0.10);
+  --accent-3:   rgba(232, 168, 124, 0.28);
+  --line:       rgba(243, 238, 226, 0.10);
+  --line-soft:  rgba(243, 238, 226, 0.05);
+  --code-bg:    #0E0C0A;
+  --code-ink:   #E8DFCC;
+  --quote-bg:   rgba(232, 168, 124, 0.06);
+  --shadow:     0 1px 2px rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.3);
+  --shadow-lg:  0 2px 4px rgba(0,0,0,0.3), 0 24px 64px rgba(0,0,0,0.5);
+  --grain-opacity: 0.06;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── Progress bar ─── */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  z-index: 100;
+  transition: width 0.15s ease-out;
+  box-shadow: 0 0 8px var(--accent-3);
+}
+
+/* ─── Top bar ─── */
+#topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid var(--line-soft);
+  transition: all 0.4s ease;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 144, 'wght' 400, 'SOFT' 30;
+  font-size: 22px;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.brand .dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-4px);
+}
+
+.brand small {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-left: 6px;
+}
+
+.filename {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  letter-spacing: -0.005em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filename::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  letter-spacing: -0.005em;
+}
+
+.btn:hover {
+  background: var(--accent-2);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg-paper);
+}
+.btn-primary:hover {
+  background: var(--accent);
+  color: var(--bg-paper);
+  border-color: transparent;
+}
+
+/* ─── Upload view ─── */
+#upload-view {
+  min-height: 100vh;
+  padding: 128px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.upload-hero {
+  max-width: 600px;
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrow::before, .eyebrow::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+h1.display {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 144, 'wght' 350, 'SOFT' 50;
+  font-size: clamp(48px, 8vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+
+h1.display em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 144, 'wght' 300, 'SOFT' 100;
+}
+
+.tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink-2);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Drop zone */
+.dropzone {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-paper);
+  border: 1.5px dashed var(--line);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--shadow);
+  animation: fadeInUp 0.8s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, var(--accent-2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.dropzone:hover, .dropzone.dragging {
+  border-color: var(--accent);
+  border-style: solid;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.dropzone:hover::before, .dropzone.dragging::before {
+  opacity: 1;
+}
+
+.dropzone.dragging {
+  transform: scale(1.01);
+}
+
+.paper-illustration {
+  width: 72px;
+  height: 88px;
+  margin: 0 auto 24px;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dropzone:hover .paper-illustration {
+  transform: translateY(-4px) rotate(-2deg);
+}
+
+.paper-illustration svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(26, 23, 20, 0.08));
+}
+
+.dropzone-text {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 72, 'wght' 400;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
+}
+
+.dropzone-text em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.dropzone-hint {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--ink-3);
+  letter-spacing: -0.005em;
+}
+
+.sample-link {
+  margin-top: 28px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--ink-3);
+  animation: fadeInUp 0.8s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sample-link button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent-3);
+  transition: text-decoration-color 0.2s;
+}
+
+.sample-link button:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* Decorative marks */
+.deco-mark {
+  position: absolute;
+  color: var(--accent);
+  opacity: 0.14;
+  font-family: var(--font-display);
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
+.deco-mark.top-left {
+  top: 15%;
+  left: 8%;
+  font-size: 240px;
+  transform: rotate(-12deg);
+}
+
+.deco-mark.bottom-right {
+  bottom: 10%;
+  right: 10%;
+  font-size: 180px;
+  transform: rotate(8deg);
+}
+
+/* ─── Reader view ─── */
+#reader-view {
+  display: none;
+  padding-top: 64px;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+}
+
+#reader-view.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reader-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 48px;
+  padding: 56px 48px 120px;
+}
+
+/* TOC */
+#toc {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+  max-height: calc(100vh - 128px);
+  overflow-y: auto;
+  padding-right: 16px;
+  border-right: 1px solid var(--line-soft);
+}
+
+#toc::-webkit-scrollbar { width: 3px; }
+#toc::-webkit-scrollbar-track { background: transparent; }
+#toc::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+.toc-title {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toc-list a {
+  display: block;
+  padding: 6px 0 6px 12px;
+  border-left: 2px solid transparent;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-decoration: none;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  transition: all 0.2s ease;
+}
+
+.toc-list a:hover {
+  color: var(--ink);
+  border-left-color: var(--line);
+}
+
+.toc-list a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+.toc-list li.level-3 a { padding-left: 24px; font-size: 12px; }
+.toc-list li.level-4 a { padding-left: 36px; font-size: 12px; opacity: 0.8; }
+
+/* ─── Article ─── */
+article {
+  max-width: var(--reading-width);
+  margin: 0 auto;
+  font-family: var(--font-serif);
+  font-size: 18.5px;
+  line-height: 1.72;
+  color: var(--ink-2);
+  font-variation-settings: 'opsz' 24;
+  position: relative;
+}
+
+article > *:first-child { margin-top: 0; }
+article > *:last-child { margin-bottom: 0; }
+
+article h1, article h2, article h3, article h4, article h5, article h6 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  scroll-margin-top: 88px;
+  font-weight: 400;
+}
+
+article h1 {
+  font-variation-settings: 'opsz' 144, 'wght' 350, 'SOFT' 40;
+  font-size: clamp(40px, 6vw, 62px);
+  line-height: 1;
+  margin-bottom: 32px;
+  letter-spacing: -0.03em;
+  position: relative;
+}
+
+article h1::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  background: var(--accent);
+  margin-top: 28px;
+}
+
+article h2 {
+  font-variation-settings: 'opsz' 72, 'wght' 500;
+  font-size: 34px;
+  margin: 64px 0 20px;
+  letter-spacing: -0.022em;
+}
+
+article h3 {
+  font-variation-settings: 'opsz' 48, 'wght' 500;
+  font-size: 24px;
+  margin: 48px 0 16px;
+  letter-spacing: -0.015em;
+}
+
+article h4 {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  margin: 36px 0 12px;
+}
+
+article p {
+  margin: 0 0 1.3em;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+article p:first-of-type {
+  font-size: 1.12em;
+  color: var(--ink);
+}
+
+/* Drop cap on very first paragraph after h1 */
+article h1 + p::first-letter {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 144, 'wght' 500;
+  font-size: 5.4em;
+  float: left;
+  line-height: 0.85;
+  padding: 0.08em 0.1em 0 0;
+  margin-right: 0.02em;
+  color: var(--accent);
+}
+
+article a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent-3);
+  transition: all 0.2s;
+}
+
+article a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+article strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+article em {
+  font-style: italic;
+}
+
+article blockquote {
+  margin: 2em 0;
+  padding: 4px 0 4px 28px;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(90deg, var(--quote-bg), transparent 60%);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: 'opsz' 72, 'wght' 350;
+  font-size: 1.22em;
+  line-height: 1.45;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  position: relative;
+}
+
+article blockquote p {
+  margin-bottom: 0.6em;
+}
+article blockquote p:last-child { margin-bottom: 0; }
+
+article ul, article ol {
+  margin: 1.2em 0;
+  padding-left: 1.6em;
+}
+
+article li {
+  margin-bottom: 0.45em;
+}
+
+article ul li::marker {
+  color: var(--accent);
+}
+
+article ol li::marker {
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-style: italic;
+}
+
+article hr {
+  border: none;
+  margin: 3.5em auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  position: relative;
+}
+
+article hr::before {
+  content: '❋';
+  font-family: var(--font-display);
+  color: var(--accent);
+  font-size: 18px;
+  opacity: 0.6;
+  background: var(--bg);
+  padding: 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+article hr::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0;
+  height: 1px;
+  background: var(--line);
+  z-index: 0;
+}
+
+/* Code */
+article code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  border: 1px solid var(--line-soft);
+}
+
+article pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin: 2em 0;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.65;
+  position: relative;
+}
+
+article pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--code-ink);
+}
+
+/* Tables */
+article table {
+  width: 100%;
+  margin: 2em 0;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 15px;
+}
+
+article th {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 18px 12px 0;
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+article td {
+  padding: 14px 18px 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+  color: var(--ink-2);
+}
+
+article tr:hover td {
+  color: var(--ink);
+}
+
+/* Images */
+article img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.8em 0;
+  box-shadow: var(--shadow);
+}
+
+/* Task lists */
+article input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: var(--accent);
+}
+
+/* End marker */
+.end-mark {
+  text-align: center;
+  margin-top: 80px;
+  padding-top: 40px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-3);
+  letter-spacing: 0.15em;
+}
+
+.end-mark::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--line);
+  margin: 0 auto 20px;
+}
+
+/* Highlight.js theme — adapted to our palette */
+.hljs-comment, .hljs-quote { color: var(--ink-3); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-subst { color: var(--accent); font-weight: 500; }
+.hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable, .hljs-tag .hljs-attr { color: #B4572C; }
+.hljs-string, .hljs-doctag { color: #5B7A4E; }
+.hljs-title, .hljs-section, .hljs-selector-id { color: var(--code-ink); font-weight: 600; }
+.hljs-type, .hljs-class .hljs-title { color: #8B6D2E; }
+.hljs-tag, .hljs-name, .hljs-attribute { color: var(--accent); }
+.hljs-regexp, .hljs-link { color: #5B7A4E; }
+.hljs-symbol, .hljs-bullet { color: #B4572C; }
+.hljs-built_in, .hljs-builtin-name { color: #8B6D2E; }
+.hljs-meta { color: var(--ink-3); }
+.hljs-deletion { background: rgba(180, 87, 44, 0.2); }
+.hljs-addition { background: rgba(91, 122, 78, 0.2); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 700; }
+
+[data-theme="dark"] .hljs-keyword, 
+[data-theme="dark"] .hljs-selector-tag, 
+[data-theme="dark"] .hljs-subst { color: #E8A87C; }
+[data-theme="dark"] .hljs-number, 
+[data-theme="dark"] .hljs-literal, 
+[data-theme="dark"] .hljs-variable, 
+[data-theme="dark"] .hljs-tag .hljs-attr { color: #E89A6C; }
+[data-theme="dark"] .hljs-string { color: #A8C090; }
+[data-theme="dark"] .hljs-title, 
+[data-theme="dark"] .hljs-section { color: #F3EEE2; }
+[data-theme="dark"] .hljs-type, 
+[data-theme="dark"] .hljs-class .hljs-title { color: #D4B87A; }
+[data-theme="dark"] .hljs-tag, 
+[data-theme="dark"] .hljs-name { color: #E8A87C; }
+
+/* Responsive */
+@media (max-width: 960px) {
+  .reader-layout {
+    grid-template-columns: 1fr;
+    padding: 32px 24px 80px;
+    gap: 0;
+  }
+  #toc {
+    display: none;
+  }
+  article {
+    font-size: 17.5px;
+  }
+  article h1 { font-size: 42px; }
+  article h2 { font-size: 28px; }
+  #topbar { padding: 0 16px; height: 56px; }
+  #reader-view { padding-top: 56px; }
+  .btn span { display: none; }
+  .btn { padding: 8px; }
+  .filename { display: none; }
+  .deco-mark { display: none; }
+}
+
+@media (max-width: 520px) {
+  article h1 + p::first-letter {
+    font-size: 4em;
+  }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header id="topbar">
+  <div class="brand">
+    Liseuse<span class="dot"></span>
+    <small>v.1</small>
+  </div>
+
+  <div class="filename" id="filename-display"></div>
+
+  <div class="controls">
+    <button class="btn btn-icon" id="toggle-theme" title="Changer de thème">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" id="icon-theme">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+    </button>
+    <button class="btn" id="new-file-btn" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      <span>Nouveau fichier</span>
+    </button>
+  </div>
+</header>
+
+<!-- Upload view -->
+<section id="upload-view">
+  <span class="deco-mark top-left">&ldquo;</span>
+  <span class="deco-mark bottom-right">&rdquo;</span>
+
+  <div class="upload-hero">
+    <div class="eyebrow">Lecteur Markdown</div>
+    <h1 class="display">Lire, <em>en paix.</em></h1>
+    <p class="tagline">Déposez un fichier <code style="font-family:var(--font-mono);font-size:0.9em;background:var(--accent-2);padding:2px 8px;border-radius:4px;color:var(--accent);">.md</code> — et laissez-vous porter par la typographie.</p>
+  </div>
+
+  <label class="dropzone" id="dropzone">
+    <input type="file" id="file-input" accept=".md,.markdown,.mdx,.txt,text/markdown" hidden>
+    <div class="paper-illustration">
+      <svg viewBox="0 0 72 88" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="paper-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.04"/>
+            <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <g transform="rotate(-4 36 44)">
+          <rect x="10" y="6" width="52" height="72" rx="2" fill="var(--bg-raised)" stroke="var(--line)" stroke-width="1"/>
+          <rect x="10" y="6" width="52" height="72" rx="2" fill="url(#paper-grad)"/>
+          <line x1="18" y1="22" x2="50" y2="22" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="18" y1="30" x2="54" y2="30" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+          <line x1="18" y1="38" x2="46" y2="38" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+          <line x1="18" y1="46" x2="52" y2="46" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+          <line x1="18" y1="54" x2="42" y2="54" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+          <line x1="18" y1="62" x2="50" y2="62" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+          <path d="M 15 14 Q 18 11 22 14" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+        </g>
+      </svg>
+    </div>
+    <div class="dropzone-text">Déposez votre fichier <em>ici</em></div>
+    <div class="dropzone-hint">Ou cliquez pour parcourir — formats .md, .markdown, .txt</div>
+  </label>
+
+  <div class="sample-link">
+    Pas de fichier sous la main ? <button id="sample-btn">Essayez avec un extrait</button>
+  </div>
+</section>
+
+<!-- Reader view -->
+<section id="reader-view">
+  <div class="reader-layout">
+    <aside id="toc">
+      <div class="toc-title">Sommaire</div>
+      <ul class="toc-list" id="toc-list"></ul>
+    </aside>
+    <article id="content"></article>
+  </div>
+</section>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   LISEUSE — behaviour
+   ═══════════════════════════════════════════════════════ */
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+// Configure marked
+marked.setOptions({
+  breaks: false,
+  gfm: true,
+});
+
+// ─── Theme toggle ───
+const themeBtn = $('#toggle-theme');
+const iconTheme = $('#icon-theme');
+const sunIcon = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`;
+const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  iconTheme.innerHTML = t === 'dark' ? sunIcon : moonIcon;
+}
+
+// Default based on system preference, in memory only
+const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+setTheme(prefersDark ? 'dark' : 'light');
+
+themeBtn.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// ─── File handling ───
+const fileInput = $('#file-input');
+const dropzone = $('#dropzone');
+const uploadView = $('#upload-view');
+const readerView = $('#reader-view');
+const content = $('#content');
+const filenameDisplay = $('#filename-display');
+const newFileBtn = $('#new-file-btn');
+
+function slugify(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+function buildTOC() {
+  const tocList = $('#toc-list');
+  tocList.innerHTML = '';
+  const headings = content.querySelectorAll('h1, h2, h3, h4');
+  if (headings.length < 2) {
+    $('#toc').style.display = 'none';
+    document.querySelector('.reader-layout').style.gridTemplateColumns = '1fr';
+    return;
+  }
+  $('#toc').style.display = '';
+  headings.forEach((h, i) => {
+    const text = h.textContent;
+    const id = 'sec-' + i + '-' + slugify(text).slice(0, 40);
+    h.id = id;
+    const level = parseInt(h.tagName.substring(1));
+    const li = document.createElement('li');
+    li.className = 'level-' + level;
+    const a = document.createElement('a');
+    a.href = '#' + id;
+    a.textContent = text;
+    a.dataset.target = id;
+    li.appendChild(a);
+    tocList.appendChild(li);
+  });
+  setupScrollSpy();
+}
+
+function setupScrollSpy() {
+  const headings = content.querySelectorAll('h1, h2, h3, h4');
+  const tocLinks = $$('#toc-list a');
+  if (!headings.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach((l) => l.classList.remove('active'));
+        const active = document.querySelector(`#toc-list a[data-target="${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, {
+    rootMargin: '-80px 0px -70% 0px',
+    threshold: 0,
+  });
+
+  headings.forEach((h) => observer.observe(h));
+}
+
+function renderMarkdown(text, filename) {
+  const html = marked.parse(text);
+  content.innerHTML = html;
+
+  // End marker
+  const endMark = document.createElement('div');
+  endMark.className = 'end-mark';
+  endMark.textContent = '❋  F I N  ❋';
+  content.appendChild(endMark);
+
+  // Syntax highlight
+  content.querySelectorAll('pre code').forEach((block) => {
+    try { hljs.highlightElement(block); } catch (e) { /* ok */ }
+  });
+
+  buildTOC();
+
+  filenameDisplay.textContent = filename || 'Document';
+  newFileBtn.style.display = 'inline-flex';
+
+  uploadView.style.display = 'none';
+  readerView.classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const name = file.name.toLowerCase();
+  const isValid = /\.(md|markdown|mdx|txt)$/.test(name) || file.type.includes('markdown') || file.type === 'text/plain';
+  if (!isValid) {
+    dropzone.animate(
+      [{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }],
+      { duration: 350 }
+    );
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => renderMarkdown(e.target.result, file.name);
+  reader.readAsText(file);
+}
+
+fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+// Drag and drop
+['dragenter', 'dragover'].forEach((ev) => {
+  dropzone.addEventListener(ev, (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragging');
+  });
+});
+
+['dragleave', 'drop'].forEach((ev) => {
+  dropzone.addEventListener(ev, (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragging');
+  });
+});
+
+dropzone.addEventListener('drop', (e) => {
+  const file = e.dataTransfer?.files?.[0];
+  handleFile(file);
+});
+
+// Page-wide drop — nicer UX
+document.addEventListener('dragover', (e) => { e.preventDefault(); });
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  if (uploadView.style.display !== 'none') {
+    handleFile(e.dataTransfer?.files?.[0]);
+  }
+});
+
+// New file button
+newFileBtn.addEventListener('click', () => {
+  readerView.classList.remove('active');
+  uploadView.style.display = '';
+  filenameDisplay.textContent = '';
+  newFileBtn.style.display = 'none';
+  fileInput.value = '';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+});
+
+// ─── Reading progress bar ───
+const progress = $('#progress');
+function updateProgress() {
+  if (!readerView.classList.contains('active')) {
+    progress.style.width = '0';
+    return;
+  }
+  const scrolled = window.scrollY;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = max > 0 ? Math.min(100, (scrolled / max) * 100) : 0;
+  progress.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+
+// ─── Sample content ───
+const SAMPLE_MD = `# Le Plaisir de Lire
+
+*Une méditation sur les mots, le papier, et le temps retrouvé.*
+
+Il existe quelque chose de **profondément mystérieux** dans l'acte de lire. Un simple arrangement de caractères sur une page — noirs sur blanc, ou blancs sur noir — parvient à transporter l'esprit dans des mondes lointains, à faire surgir des voix disparues, à ressusciter des paysages jamais vus.
+
+La lecture, au fond, est une forme de magie lente.
+
+## L'origine des signes
+
+> Les livres sont des amis silencieux, et le papier un miroir de l'âme.
+>
+> — Proverbe attribué à Cicéron
+
+Depuis l'invention de l'écriture cunéiforme en Mésopotamie, vers 3200 avant notre ère, l'humanité n'a cessé de perfectionner l'art de consigner la pensée. De la tablette d'argile au parchemin, du codex au livre imprimé, puis à l'écran — chaque support a transformé notre rapport au texte.
+
+### Les grandes étapes
+
+1. **L'écriture cunéiforme** — Mésopotamie, vers 3200 av. J.-C.
+2. **Les hiéroglyphes égyptiens** — vers 3100 av. J.-C.
+3. **L'alphabet phénicien** — vers 1050 av. J.-C.
+4. **L'imprimerie de Gutenberg** — Mayence, 1450.
+5. **Le livre numérique** — années 1970.
+
+Chacune de ces révolutions a démocratisé un peu plus l'accès au savoir, élargi le cercle des lecteurs, et bouleversé les équilibres culturels de son temps.
+
+## La typographie, art discret
+
+La typographie, cet art discret mais essentiel, façonne notre lecture plus qu'on ne l'imagine. Chaque caractère a été dessiné avec soin — son galbe, son contraste, ses proportions répondent à des siècles d'affinage patient.
+
+Les polices *sérif*, avec leurs petites pattes héritées de la gravure romaine, guident l'œil sur la ligne ; les *sans-sérif*, plus modernes, incarnent la clarté fonctionnelle du XXᵉ siècle.
+
+\`\`\`javascript
+// Une métaphore en code
+function lire(livre) {
+  return livre.pages
+    .flatMap(page => page.mots)
+    .reduce((esprit, mot) => {
+      esprit.songe(mot);
+      return esprit;
+    }, new Esprit());
+}
+
+const moi = lire(nouveauLivre);
+console.log(moi.reveries); // → infinies
+\`\`\`
+
+### Les familles typographiques
+
+| Famille | Exemple | Usage principal |
+|---------|---------|-----------------|
+| Sérif humaniste | Garamond, Jenson | Textes longs, littérature |
+| Sérif moderne | Bodoni, Didot | Éditorial, mode |
+| Sans-sérif géométrique | Futura, Avenir | Signalétique, titrage |
+| Sans-sérif humaniste | Optima, Gill Sans | Interface, corps de texte |
+| Monospace | Courier, JetBrains Mono | Code, données techniques |
+
+Chaque famille porte en elle une intention, presque une philosophie : la sobriété luxueuse du Didot n'a rien à voir avec la chaleur rustique du Caslon, ni avec la neutralité scientifique du Helvetica.
+
+## L'expérience de lecture
+
+Lire, c'est ralentir. C'est s'offrir le luxe du temps suspendu, à rebours de notre époque pressée. Dans un monde qui accélère — alertes, notifications, flux infinis — le livre demeure. Immuable. Patient. Prêt à nous accueillir sans nous juger, sans nous réclamer une réponse immédiate.
+
+Certains appellent cela un *refuge*. D'autres, un *exercice*. Peu importe le mot : ce qui compte, c'est le geste.
+
+### Quelques vertus secrètes
+
+- **La patience retrouvée** : apprendre à nouveau à tenir sur une phrase longue.
+- **L'empathie élargie** : habiter, l'espace d'un chapitre, la conscience d'un autre.
+- **Le silence intérieur** : cette voix qui lit dans notre tête, et nous appartient en propre.
+
+---
+
+*Bonne lecture.*`;
+
+$('#sample-btn').addEventListener('click', () => {
+  renderMarkdown(SAMPLE_MD, 'Le Plaisir de Lire — extrait');
+});
+
+</script>
+</body>
+</html>
