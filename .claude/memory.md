@@ -3,16 +3,17 @@
 ## Project
 - **Nom:** Liseuse — lecteur Markdown raffiné (français)
 - **Type:** Produit web statique destiné publication (GitHub + Vercel)
-- **Fichier principal:** `liseuse.html` (1239 lignes, mono-fichier → à splitter en modules)
+- **Fichiers:** `index.html` (markup) + `styles.css` (design) + `app.js` (comportement)
 - **Stack:** HTML/CSS/JS vanilla, `marked.js` 11.1.1, `highlight.js` 11.9.0 (CDN)
 - **Design:** thèmes light (papier terracotta) + dark (ambre), Fraunces/Source Serif 4/Inter Tight/JetBrains Mono
 - **Backend prévu:** Supabase (auth + storage), Klaviyo (email)
 - **Déploiement:** Vercel, repo GitHub
 
 ## Now
-- Onboarding Claudify terminé — système initialisé
-- Prochain: split mono-fichier → modules HTML/CSS/JS
-- Init git + repo GitHub + projet Vercel
+- Onboarding Claudify ✓ + split modules ✓ + GitHub ✓ + Vercel ✓
+- App live: https://liseuse-qsookxbaz-datbeatbusiness.vercel.app
+- Repo: https://github.com/DatBeat/liseuse
+- Prochain: tester déploiement, planifier schéma Supabase
 
 ## Goals
 - Publier produit fini multi-utilisateurs
@@ -43,7 +44,9 @@
 - (none)
 
 ## Key Paths
-- App: `liseuse.html`
+- App: `index.html` / `styles.css` / `app.js`
 - Tâches: `Task Board.md`
 - Daily Notes: `Daily Notes/`
 - Scratchpad: `Scratchpad.md`
+- GitHub: `DatBeat/liseuse`
+- Vercel project: `datbeatbusiness/liseuse`
