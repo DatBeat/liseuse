@@ -593,8 +593,9 @@ article p:first-of-type {
   color: var(--ink);
 }
 
-/* Drop cap on very first paragraph after h1 */
-article h1 + p::first-letter {
+/* Drop cap on very first paragraph after h1 (skip front matter subtitle) */
+article h1 + p:not(.fm-subtitle)::first-letter,
+article .fm-cover + p::first-letter {
   font-family: var(--font-display);
   font-variation-settings: 'opsz' 144, 'wght' 500;
   font-size: 5.4em;
