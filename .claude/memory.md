@@ -21,13 +21,13 @@
 
 ## Goals
 - Publier produit fini multi-utilisateurs
-- Roadmap features:
-  1. Multi-fichiers + bibliothèque
-  2. Sauvegarde (Supabase)
-  3. Export PDF
-  4. Retouche / édition fichiers MD
-  5. Recherche
-- Pain points actuels: design qualité production + parsing fiable de fichiers MD originels variés
+- Roadmap restante:
+  1. Sync Supabase (auth + cloud library)
+  2. URLs publiques de partage + OG images
+  3. AI: résumé / Q&A / auto-tagging
+  4. Email digest hebdo (Klaviyo)
+- Done v2: bibliothèque locale, PWA, stats+streak, annotations, focus, front matter, édition inline, export PDF
+- Pain points: SSO Vercel à désactiver, parsing edge cases gros fichiers MD
 
 ## Workflow
 - Solo + Claude Code exclusif
@@ -36,23 +36,22 @@
 - Backend Supabase pour auth/storage, Klaviyo pour emails utilisateurs
 
 ## Open Threads
-- Architecture multi-fichiers (modules JS, CSS séparé, build tool ou non?)
-- Schéma Supabase pour bibliothèque MD
-- Stratégie export PDF (print CSS vs jsPDF vs server-side)
+- Schéma Supabase: PR de l'agent planifié pour 03/05
+- Wire Supabase client + auth magic link (post-PR)
+- Sync IDB ↔ Supabase: queue offline-first à designer
 
 ## Recent Decisions
-- Split mono-fichier OK (autorisé par utilisateur 042626)
-- Stack confirmée: GitHub + Vercel + Supabase + Klaviyo
+- Split mono-fichier en modules ES (042626)
+- Stack: GitHub + Vercel + Supabase + Klaviyo (042626)
+- Print CSS plutôt que jsPDF/server-side pour export PDF (042626)
+- Annotations: W3C TextQuoteSelector (prefix+text+suffix, 30 chars) (042626)
 
 ## Blockers
-- (none)
+- Vercel SSO Authentication empêche accès public à l'alias stable — désactivation dashboard requise par l'utilisateur
 
 ## Key Paths
 - App: `index.html` / `styles.css` / `src/main.js` (entry)
-- Modules: `src/storage.js` (IDB), `src/library.js`, `src/reader.js`, `src/stats.js`, `src/annotations.js`, `src/focus.js`
+- Modules: `src/storage.js`, `src/library.js`, `src/reader.js`, `src/stats.js`, `src/annotations.js`, `src/focus.js`, `src/editor.js`, `src/print.js`, `src/frontmatter.js`
 - PWA: `manifest.json` + `sw.js` + `icons/icon.svg`
-- Tâches: `Task Board.md`
-- Daily Notes: `Daily Notes/`
-- Scratchpad: `Scratchpad.md`
-- GitHub: `DatBeat/liseuse`
-- Vercel project: `datbeatbusiness/liseuse`
+- Tâches: `Task Board.md` · Daily Notes: `Daily Notes/` · Scratchpad: `Scratchpad.md`
+- GitHub: `DatBeat/liseuse` · Vercel project: `datbeatbusiness/liseuse` · Stable alias: `liseuse-datbeat.vercel.app`
