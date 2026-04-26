@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liseuse — Un lecteur Markdown raffiné</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header id="topbar">
+  <div class="brand">
+    Liseuse<span class="dot"></span>
+    <small>v.1</small>
+  </div>
+
+  <div class="filename" id="filename-display"></div>
+
+  <div class="controls">
+    <button class="btn btn-icon" id="toggle-theme" title="Changer de thème">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" id="icon-theme">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+    </button>
+    <button class="btn" id="new-file-btn" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      <span>Nouveau fichier</span>
+    </button>
+  </div>
+</header>
+
+<!-- Upload view -->
+<section id="upload-view">
+  <span class="deco-mark top-left">&ldquo;</span>
+  <span class="deco-mark bottom-right">&rdquo;</span>
+
+  <div class="upload-hero">
+    <div class="eyebrow">Lecteur Markdown</div>
+    <h1 class="display">Lire, <em>en paix.</em></h1>
+    <p class="tagline">Déposez un fichier <code style="font-family:var(--font-mono);font-size:0.9em;background:var(--accent-2);padding:2px 8px;border-radius:4px;color:var(--accent);">.md</code> — et laissez-vous porter par la typographie.</p>
+  </div>
+
+  <label class="dropzone" id="dropzone">
+    <input type="file" id="file-input" accept=".md,.markdown,.mdx,.txt,text/markdown" hidden>
+    <div class="paper-illustration">
+      <svg viewBox="0 0 72 88" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="paper-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.04"/>
+            <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <g transform="rotate(-4 36 44)">
+          <rect x="10" y="6" width="52" height="72" rx="2" fill="var(--bg-raised)" stroke="var(--line)" stroke-width="1"/>
+          <rect x="10" y="6" width="52" height="72" rx="2" fill="url(#paper-grad)"/>
+          <line x1="18" y1="22" x2="50" y2="22" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <line x1="18" y1="30" x2="54" y2="30" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+          <line x1="18" y1="38" x2="46" y2="38" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+          <line x1="18" y1="46" x2="52" y2="46" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+          <line x1="18" y1="54" x2="42" y2="54" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+          <line x1="18" y1="62" x2="50" y2="62" stroke="var(--ink-3)" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+          <path d="M 15 14 Q 18 11 22 14" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+        </g>
+      </svg>
+    </div>
+    <div class="dropzone-text">Déposez votre fichier <em>ici</em></div>
+    <div class="dropzone-hint">Ou cliquez pour parcourir — formats .md, .markdown, .txt</div>
+  </label>
+
+  <div class="sample-link">
+    Pas de fichier sous la main ? <button id="sample-btn">Essayez avec un extrait</button>
+  </div>
+</section>
+
+<!-- Reader view -->
+<section id="reader-view">
+  <div class="reader-layout">
+    <aside id="toc">
+      <div class="toc-title">Sommaire</div>
+      <ul class="toc-list" id="toc-list"></ul>
+    </aside>
+    <article id="content"></article>
+  </div>
+</section>
+
+<script src="app.js" defer></script>
+</body>
+</html>
