@@ -1,4 +1,4 @@
-/* Markdown rendering, TOC, theme */
+/* MDRead — Markdown rendering, TOC, theme */
 
 import { parseFrontMatter, renderFrontMatterCover } from './frontmatter.js';
 

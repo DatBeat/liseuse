@@ -1,6 +1,6 @@
 {
-  "name": "Liseuse",
-  "short_name": "Liseuse",
+  "name": "MDRead",
+  "short_name": "MDRead",
   "description": "Un lecteur Markdown raffiné — lire, en paix.",
   "lang": "fr",
   "start_url": "/",

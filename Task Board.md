@@ -1,9 +1,14 @@
 # Task Board
 
 ## Today (2026-04-27 — tomorrow's priorities)
-- [ ] **Désactiver Vercel Authentication** — Dashboard → Project → Settings → Deployment Protection. Débloque `liseuse-datbeat.vercel.app` public + auto-tracking dernier prod
-- [ ] Vérifier `liseuse-datbeat.vercel.app` répond 200 sans auth après #1, et que IDB persiste cross-deploy via cet alias
-- [ ] Tester parsing edge cases: charger un gros fichier MD réel (>500 ko) et vérifier perf + rendu
+- [ ] **Acheter `mdread.com`** chez ton registrar habituel (~$12/an, vérifié libre 042626)
+- [ ] Vérifier marque déposée USPTO + INPI pour "MDRead" (avant launch)
+- [ ] Vérifier handles sociaux `@mdread` sur X / Instagram / LinkedIn (Namechk.com)
+- [ ] **Désactiver Vercel Authentication** — Dashboard → Project → Settings → Deployment Protection
+- [ ] Une fois mdread.com acheté: ajouter en custom domain Vercel, alias auto sur prod
+- [ ] (Optionnel) Renommer repo GitHub `DatBeat/liseuse` → `DatBeat/mdread` (Vercel suit auto via redirection)
+- [ ] (Optionnel) Renommer projet Vercel `liseuse` → `mdread` (URLs immutables conservées)
+- [ ] Tester parsing edge cases: charger un gros fichier MD réel (>500 ko)
 
 ## This Week
 - [ ] Review PR de l'agent planifié 03/05 (Supabase schema draft + health check)

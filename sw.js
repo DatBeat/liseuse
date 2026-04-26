@@ -1,6 +1,8 @@
-/* Liseuse — service worker (cache-first for app shell, network-first for fonts) */
+/* MDRead — service worker (cache-first for app shell, network-first for fonts).
+   Cache prefix kept as "liseuse-" intentionally to avoid invalidating existing
+   caches on already-deployed clients during the rebrand. */
 
-const VERSION = 'v2-4';
+const VERSION = 'v2-5';
 const SHELL_CACHE = `liseuse-shell-${VERSION}`;
 const FONT_CACHE = `liseuse-fonts-${VERSION}`;
 

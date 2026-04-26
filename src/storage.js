@@ -1,4 +1,8 @@
-/* IndexedDB wrapper — local-first store for Liseuse */
+/* MDRead — IndexedDB wrapper, local-first store
+
+The DB_NAME stays "liseuse" intentionally: changing it would orphan
+existing user data on the current alias. Internal naming is decoupled
+from the public brand. */
 
 const DB_NAME = 'liseuse';
 const DB_VERSION = 1;

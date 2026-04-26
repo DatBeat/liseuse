@@ -1,7 +1,9 @@
 # Memory
 
 ## Project
-- **Nom:** Liseuse — lecteur Markdown raffiné (français)
+- **Nom (public):** MDRead — un lecteur Markdown raffiné. Tagline: "Lire, en paix."
+- **Domaine cible:** mdread.com (achat à faire — vérifié libre via RDAP 042626)
+- **Nom interne (legacy):** "liseuse" reste dans IDB name + localStorage keys + SW cache prefix pour ne pas orphaner les données existantes
 - **Type:** Produit web statique destiné publication (GitHub + Vercel)
 - **Fichiers:** `index.html` + `styles.css` + `manifest.json` + `sw.js` + `src/*.js` (modules ES)
 - **Stack:** HTML/CSS/JS vanilla, `marked.js` 11.1.1, `highlight.js` 11.9.0 (CDN)
