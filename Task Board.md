@@ -10,7 +10,7 @@
 - [x] v2 Wave 1: modules + PWA + IndexedDB library
 - [x] **Tester Wave 1 sur Vercel prod** — passed (sample render, IDB persist, drawer, SW, auto-restore)
 - [ ] Setup alias Vercel stable (`vercel alias` ou domaine custom) — URL change à chaque deploy
-- [ ] v2 Wave 2: Stats + reading streak
+- [x] v2 Wave 2: Stats + reading streak (testé en prod ✓)
 - [ ] v2 Wave 3: Annotations + Focus mode
 - [ ] Configurer domaine custom Vercel (optionnel)
 - [ ] Schéma Supabase: bibliothèque MD + auth (RLS) — agent planifié 03/05
