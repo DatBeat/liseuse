@@ -10,12 +10,13 @@
 - **Déploiement:** Vercel, repo GitHub
 
 ## Now
-- v2 Wave 1 + Wave 2 livrées et testées en prod (Claude in Chrome)
+- v2 Tier 1 complet — Waves 1, 2, 3 livrées et testées en prod (Claude in Chrome)
 - Wave 1: ES modules, PWA, IndexedDB library, drawer, auto-restore
-- Wave 2: stats tracking (5s tick + idle 60s), badge topbar, modal hero+chart+totals, streak
-- Latest prod: https://liseuse-ngg633h2w-datbeatbusiness.vercel.app
-- ⚠ URL change à chaque deploy — `vercel ls liseuse`. Setup alias stable avant launch.
-- Prochain: Wave 3 (annotations + focus) ou setup alias stable Vercel
+- Wave 2: stats tracking (5s tick + idle 60s), badge, modal, streak
+- Wave 3: annotations (3 colors + notes, prefix/suffix W3C anchoring), focus mode (paragraphe central + Cmd+Shift+F)
+- Latest prod: https://liseuse-2glz2dqt5-datbeatbusiness.vercel.app
+- ⚠ URL change à chaque deploy — setup alias Vercel stable avant launch
+- Prochain: alias stable, ou Tier 2 (édition inline + export PDF), ou Supabase sync
 - Repo: https://github.com/DatBeat/liseuse
 
 ## Goals

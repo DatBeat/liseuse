@@ -11,7 +11,7 @@
 - [x] **Tester Wave 1 sur Vercel prod** — passed (sample render, IDB persist, drawer, SW, auto-restore)
 - [ ] Setup alias Vercel stable (`vercel alias` ou domaine custom) — URL change à chaque deploy
 - [x] v2 Wave 2: Stats + reading streak (testé en prod ✓)
-- [ ] v2 Wave 3: Annotations + Focus mode
+- [x] v2 Wave 3: Annotations + Focus mode (testé en prod ✓)
 - [ ] Configurer domaine custom Vercel (optionnel)
 - [ ] Schéma Supabase: bibliothèque MD + auth (RLS) — agent planifié 03/05
 - [ ] Améliorer parsing fichiers MD originels (edge cases)
