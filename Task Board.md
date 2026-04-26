@@ -7,10 +7,13 @@
 - [x] Split `liseuse.html` → modules (`index.html` + `styles.css` + `app.js`)
 
 ## This Week
+- [x] v2 Wave 1: modules + PWA + IndexedDB library
+- [ ] **Tester Wave 1 sur Vercel prod** (bibliothèque, search, PWA install, offline)
+- [ ] v2 Wave 2: Stats + reading streak
+- [ ] v2 Wave 3: Annotations + Focus mode
 - [ ] Configurer domaine custom Vercel (optionnel)
-- [ ] Schéma Supabase: bibliothèque MD + auth (RLS)
+- [ ] Schéma Supabase: bibliothèque MD + auth (RLS) — agent planifié 03/05
 - [ ] Améliorer parsing fichiers MD originels (edge cases)
-- [ ] Plan UX multi-fichiers (sidebar bibliothèque)
 
 ## Backlog
 - [ ] Multi-fichiers UI

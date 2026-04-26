@@ -3,17 +3,18 @@
 ## Project
 - **Nom:** Liseuse — lecteur Markdown raffiné (français)
 - **Type:** Produit web statique destiné publication (GitHub + Vercel)
-- **Fichiers:** `index.html` (markup) + `styles.css` (design) + `app.js` (comportement)
+- **Fichiers:** `index.html` + `styles.css` + `manifest.json` + `sw.js` + `src/*.js` (modules ES)
 - **Stack:** HTML/CSS/JS vanilla, `marked.js` 11.1.1, `highlight.js` 11.9.0 (CDN)
 - **Design:** thèmes light (papier terracotta) + dark (ambre), Fraunces/Source Serif 4/Inter Tight/JetBrains Mono
 - **Backend prévu:** Supabase (auth + storage), Klaviyo (email)
 - **Déploiement:** Vercel, repo GitHub
 
 ## Now
-- Onboarding Claudify ✓ + split modules ✓ + GitHub ✓ + Vercel ✓
+- v2 Wave 1 livrée: ES modules, PWA, IndexedDB library
+- À tester sur prod: install PWA, library drawer, search, persistence après reload
+- Prochain: Wave 2 (stats + streak) puis Wave 3 (annotations + focus)
 - App live: https://liseuse-qsookxbaz-datbeatbusiness.vercel.app
 - Repo: https://github.com/DatBeat/liseuse
-- Prochain: tester déploiement, planifier schéma Supabase
 
 ## Goals
 - Publier produit fini multi-utilisateurs
@@ -44,7 +45,9 @@
 - (none)
 
 ## Key Paths
-- App: `index.html` / `styles.css` / `app.js`
+- App: `index.html` / `styles.css` / `src/main.js` (entry)
+- Modules: `src/storage.js` (IDB), `src/library.js`, `src/reader.js`, `src/stats.js`, `src/annotations.js`, `src/focus.js`
+- PWA: `manifest.json` + `sw.js` + `icons/icon.svg`
 - Tâches: `Task Board.md`
 - Daily Notes: `Daily Notes/`
 - Scratchpad: `Scratchpad.md`
