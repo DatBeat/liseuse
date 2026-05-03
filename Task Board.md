@@ -11,6 +11,7 @@
 - [ ] Tester parsing edge cases: charger un gros fichier MD réel (>500 ko)
 
 ## This Week
+- [ ] Review Supabase migration 0001_init_library.sql + apply
 - [ ] Review PR de l'agent planifié 03/05 (Supabase schema draft + health check)
 - [ ] Une fois PR mergée: wire client Supabase, auth magic link, sync IDB ↔ Supabase (offline-first queue)
 - [ ] Améliorer parsing fichiers MD originels (edge cases identifiés)
